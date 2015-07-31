@@ -45,22 +45,17 @@ VAR
   byte  Cat5TBOX
   byte  Cat6TBOX
   byte  QUESTMENU[31] '0 is junk so we use indices 1-30
-  byte  Question[64]
+  byte  Question[140]
   byte  Answer[64]
   long  questVal ' Hold the value of the current question
   byte  AnswerBox
   byte buzzerAlert
   byte buzzerTeam
-  'byte AnswerBoxCreated
   byte buzzerEligible
   '---------------------------------------------------------------------------
   ' Screen Geometry  returned by call to GUI.Init() (may be useful)
   '---------------------------------------------------------------------------
   byte  vga_rows, vga_cols
-
-  byte  strBuf[36]
-  byte  strBuf2[64]
-  byte  strBufTmp[128]
   
   byte Team1Increment
   byte Team1Decrement
@@ -74,9 +69,9 @@ VAR
   long team2Score
   long team3Score
   
-  byte tmr1
+  'byte tmr1
 
-PUB start | gx, {tmr1,} tmr2, idx, str, tmp, i
+PUB start | gx, idx, str, i
 
   'debugging - start Terminal"
   pst.Start(115200)
@@ -89,8 +84,8 @@ PUB start | gx, {tmr1,} tmr2, idx, str, tmp, i
   'unless you want a timer object to do timed activity. Note that it uses a
   'separate COG (so it is not cheap).
   '---------------------------------------------------------------------------
-  TMRS.start( 10 )                      'start timer object (1/10 sec timer)
-  tmr1 := TMRS.register                 'register 2 timers
+  'TMRS.start( 10 )                      'start timer object (1/10 sec timer)
+  'tmr1 := TMRS.register                 'register 2 timers
 
   team1Score := 0
   team2Score := 0
@@ -215,8 +210,7 @@ PRI CreateUI | tmp
   tmp := GUI.Init(vga_base, mouse_dat, mouse_clk, keyboard_dat, keyboard_clk )
   vga_rows := ( tmp & $0000FF00 ) >> 8
   vga_cols := tmp & $000000FF
-
-  
+    
   '---------------------------------------------------------------------------
   'setup screen colours
   '---------------------------------------------------------------------------
@@ -224,11 +218,6 @@ PRI CreateUI | tmp
   initRectangles
   initScores
 
-PRI RestoreBoard
-  GUI.ClearScreen( %%333, %%003 )               'each is %%RGB 4 levels per R-G-B
-
-  initRectangles
-  initScores
 
 PRI initRectangles | c, r
   'TODO: Need to accept array indicating which cells to block out
@@ -260,7 +249,7 @@ PRI initRectangles | c, r
   GUI.TBOXPrint( Cat6TBOX, string("History"), 0 )
   
 
-  AnswerBox := GUI.TBOXInit( 26, 15, 66, 3, 0,0)      'Needs to be two wider than max answer length
+  AnswerBox := GUI.TBOXInit( 24, 15, 66, 6, 1,0)      'Needs to be two wider than max answer length
   buzzerLine := 5
   buzzerAlert := GUI.TBOXInit(buzzerLine,45,5,3,0,0)
   buzzerTeam := GUI.TBOXInit(33,15,66,3,0,0)
@@ -272,7 +261,7 @@ PRI initRectangles | c, r
 
   Team3Decrement := GUI.MENUInit(41,65,string("-"))
   Team3Increment := GUI.MENUInit(41,92,string("+"))
-  'GUI.MenuSetColor(Team3Increment, %%300, %%030)
+
 
 
 PRI initScores
@@ -288,21 +277,17 @@ PRI HandleBuzzer(val) | tmp
   'a, ; (semicolon), and numpad 5 are 97, 59, and 53
 
   if buzzerEligible == 1
-
     case val
       97 : 
            GUI.TBOXPrint(buzzerTeam, @Team1Name, 0)
-           'GUI.PrintStr(buzzerRow,30,@Team1Name,0)
            DisableBuzzer
              
       59 : 
            GUI.TBOXPrint(buzzerTeam, @Team2Name, 0)
-'          'GUI.PrintStr(buzzerRow,30,@Team2Name,0)
            DisableBuzzer
    
       53 : 
            GUI.TBOXPrint(buzzerTeam, @Team3Name, 0)
-           'GUI.PrintStr(buzzerRow,30,@Team3Name,0)
            DisableBuzzer
 
 
@@ -333,142 +318,131 @@ PRI DisableBuzzer
  
 PRI HandleQuestionFunction( val ) | tmp
   '0 status indicates we've already used this question
-  'ifnot GUI.MENUGetStatus(QuestMenu[val]) == 0
-  'better to make it possible to click this just in case we need to go back to one
 
   if 1 == 1  
     case val
       'Dumb and simple, just 30 different options
       1: 'Cat 1 $100 question
-         questVal := 100
-         bytemove(@Question, string("This U.S. attorney prosecuted Aaron Swartz                      "),64)
-         bytemove(@Answer,   string("Who is Carmen Ortiz?                                            "),64)
-           
+          questVal := 100
+          bytemove(@Question, string("Jeff Moss, a.k.a The Dark Tangent, pursued this major in college                                                                            "),140)
+          bytemove(@Answer,   string("What is criminal justice?                                       "),64)
       2: 'Cat 1 $200 question
-         questVal := 200
-         bytemove(@Question, string("This tool for location obfuscation vanished mysteriously in July"), 64)
-         bytemove(@Answer,   string("What is ProxyHam?                                               "), 64)
-        
-      3: questVal := 300
-         bytemove(@Question, string("In 2009 this was placed in the Riviera lobby.                   "), 64)
-         bytemove(@Answer,   string("What is a fake ATM?                                             "), 64)
-        
-      4: questVal := 400
-         bytemove(@Question, string("Boston officials demanded a 2008 talk on this topic be canceled "), 64)
-         bytemove(@Answer,   string("What is subway card hacking?                                    "), 64)
-        
-      5: questVal := 500
-         bytemove(@Question, string("Juniper Networks canceled a talk on this topic in 2009          "), 64)
-         bytemove(@Answer,   string("What is ATM hacking?                                            "), 64)
-        
+          questVal := 200
+          bytemove(@Question, string("At the Riv in 2009, someone boldly placed this outside the hotel's security office to steal banking credentials from unsuspecting users     "),140)
+          bytemove(@Answer,   string("What is a rogue ATM?                                            "),64)
+      3: 'Cat 1 $300 question
+          questVal := 300
+          bytemove(@Question, string("The name and/or title of the Arizona lawmaker who spoke at DefCon 1 following her work on the notorious Operation Sun Devil case            "),140)
+          bytemove(@Answer,   string("Who is Arizona Assistant Attorney General Gail Thackeray?       "),64)
+      4: 'Cat 1 $400 question
+          questVal := 400
+          bytemove(@Question, string("Marc Weber Tobias and his band of lock crackers easily debunked this high security lock maker's claims at DC XVI                            "),140)
+          bytemove(@Answer,   string("What is Medeco?                                                 "),64)
+      5: 'Cat 1 $500 question
+          questVal := 500
+          bytemove(@Question, string("The Dateline reporter who was outed after trying to penetrate DefCon in 2007                                                                "),140)
+          bytemove(@Answer,   string("Who is Michelle Madigan?                                        "),64)
       6: 'Cat 2 $100 question
-         questVal := 100
-         bytemove(@Question, string("Question                                                        "), 64)
-         bytemove(@Answer,   string("What is the question?                                           "), 64)
-        
-      7: questVal := 200
-         bytemove(@Question, string("Question                                                        "), 64)
-         bytemove(@Answer,   string("What is the question?                                           "), 64)
-        
-      8: questVal := 300
-         bytemove(@Question, string("Question                                                        "), 64)
-         bytemove(@Answer,   string("What is the question?                                           "), 64)
-        
-      9: questVal := 400
-         bytemove(@Question, string("Question                                                        "), 64)
-         bytemove(@Answer,   string("What is the question?                                           "), 64)
-        
-      10: questVal := 500
-          bytemove(@Question, string("Question                                                        "), 64)
-          bytemove(@Answer,   string("What is the question?                                           "), 64)
-        
+          questVal := 100
+          bytemove(@Question, string("This cyber near-disaster cost $825 billion to prevent – so they say                                                                       "),140)
+          bytemove(@Answer,   string("What is Y2K?                                                    "),64)
+      7: 'Cat 2 $200 question
+          questVal := 200
+          bytemove(@Question, string("Two recall programs for Dell and Apple cost this Japanese battery maker an estimated $185 million                                           "),140)
+          bytemove(@Answer,   string("What is Sony?                                                   "),64)
+      8: 'Cat 2 $300 question
+          questVal := 300
+          bytemove(@Question, string("A Mars Mission in 1998 failed when one NASA contractor used imperial units and another contractor used this for the spacecraft's navigation systems"),140)
+          bytemove(@Answer,   string("What is metric? (or What is the metric system?)                 "),64)
+      9: 'Cat 2 $400 question
+          questVal := 400
+          bytemove(@Question, string("Due to a single line of bad code, the AT&T network collapsed in this year, the year prior to the collapse of the Soviet Union               "),140)
+          bytemove(@Answer,   string("What is 1990?                                                   "),64)
+      10: 'Cat 2 $500 question
+          questVal := 500
+          bytemove(@Question, string("In 1983, Lt. Col. Stanislov Petrov prevented this cataclysmic event by doing nothing                                                        "),140)
+          bytemove(@Answer,   string("What is World War 3? (A Soviet satellite misinterpreted sun reflecting off of clouds as a U.S ballistic missile launch)"),64)
+      11: 'Cat 3 $100 question
+          questVal := 100
+          bytemove(@Question, string("This computer required 500 gallons of Florinert to run                                                                                      "),140)
+          bytemove(@Answer,   string("What is the Cray 2? (“Cray” is sufficient)                  "),64)
+      12: 'Cat 3 $200 question
+          questVal := 200
+          bytemove(@Question, string("Introduced in August 1982, this computer quickly garnered 30-40% market share                                                               "),140)
+          bytemove(@Answer,   string("What is the Commodore 64?                                       "),64)
+      13: 'Cat 3 $300 question
+          questVal := 300
+          bytemove(@Question, string("This computer company went bankrupt because it announced the “Executive” model before it was ready, and the “Model I” stopped selling"),140)
+          bytemove(@Answer,   string("What is Osborne?                                                "),64)
+      14: 'Cat 3 $400 question
+          questVal := 400
+          bytemove(@Question, string("This annoyance was first discovered on September 9, 1945 in Relay #70 Panel F. by a Navy WAVE named Grace Hopper                            "),140)
+          bytemove(@Answer,   string("What is a computer bug?                                         "),64)
+      15: 'Cat 3 $500 question
+          questVal := 500
+          bytemove(@Question, string("Also the title of a Van Halen album, the model number of the original IBM Personal Computer introduced in 1981                              "),140)
+          bytemove(@Answer,   string("What is a 5150?                                                 "),64)
+      16: 'Cat 4 $100 question
+          questVal := 100
+          bytemove(@Question, string("The number of known even prime numbers                                                                                                      "),140)
+          bytemove(@Answer,   string("What is 1?(2 is the only one)                                   "),64)
+      17: 'Cat 4 $200 question
+          questVal := 200
+          bytemove(@Question, string("The largest prime number less than 100                                                                                                      "),140)
+          bytemove(@Answer,   string("What is 97?                                                     "),64)
+      18: 'Cat 4 $300 question
+          questVal := 300
+          bytemove(@Question, string("The Inverse of the value of I squared                                                                                                       "),140)
+          bytemove(@Answer,   string("What is 1? (I = sqrt(-1))                                       "),64)
+      19: 'Cat 4 $400 question
+          questVal := 400
+          bytemove(@Question, string("Pi with at least 8 digits to the right of the decimal                                                                                       "),140)
+          bytemove(@Answer,   string("What is 3.14159265? (? 358979323846264338327950?)               "),64)
+      20: 'Cat 4 $500 question
+          questVal := 500
+          bytemove(@Question, string("The sum of the first ten positive integers                                                                                                  "),140)
+          bytemove(@Answer,   string("What is 55? (n*(n+1)/2 helps a bit!)                            "),64)
+      21: 'Cat 5 $100 question
+          questVal := 100
+          bytemove(@Question, string("Network geeks mean this by IP                                                                                                               "),140)
+          bytemove(@Answer,   string("What is Internet Protocol?                                      "),64)
+      22: 'Cat 5 $200 question
+          questVal := 200
+          bytemove(@Question, string("Copyright lawyers mean this by IP                                                                                                           "),140)
+          bytemove(@Answer,   string("What is Intellectual Property?                                  "),64)
+      23: 'Cat 5 $300 question
+          questVal := 300
+          bytemove(@Question, string("This IP is considered the low end of the Harrah's brand in Las Vegas                                                                        "),140)
+          bytemove(@Answer,   string("What is the Imperial Palace?                                    "),64)
+      24: 'Cat 5 $400 question
+          questVal := 400
+          bytemove(@Question, string("This mechanism produces a result by means of a repeated cycle of operations                                                                 "),140)
+          bytemove(@Answer,   string("What is an iterative process?                                   "),64)
+      25: 'Cat 5 $500 question
+          questVal := 500
+          bytemove(@Question, string("In Afganistan, special operators often found themselves waiting for the CIA to pay local Ips, meaning this                                  "),140)
+          bytemove(@Answer,   string("What are indigenous persons (or personnel)?                     "),64)
+      26: 'Cat 6 $100 question
+          questVal := 100
+          bytemove(@Question, string("A well-known aquatic Scottish monster                                                                                                       "),140)
+          bytemove(@Answer,   string("What is Loch Ness?                                              "),64)
+      27: 'Cat 6 $200 question
+          questVal := 200
+          bytemove(@Question, string("AKA a DefCon DJ                                                                                                                             "),140)
+          bytemove(@Answer,   string("Who is Jackalope?                                               "),64)
+      28: 'Cat 6 $300 question
+          questVal := 300
+          bytemove(@Question, string("The native American term for this cryptid                                                                                                   "),140)
+          bytemove(@Answer,   string("What is Sasquatch?                                              "),64)
+      29: 'Cat 6 $400 question
+          questVal := 400
+          bytemove(@Question, string("This goat sucker was first discovered in Puerto Rico                                                                                        "),140)
+          bytemove(@Answer,   string("What is the chupacabra?                                         "),64)
+      30: 'Cat 6 $500 question
+          questVal := 500
+          bytemove(@Question, string("This legendary creature reportedly seen in the Point Pleasant area of West Virginia                                                         "),140)
+          bytemove(@Answer,   string("What is the Moth Man?                                           "),64)
 
-      11: 'Cat 3 $100
-          questVal := 100
-          bytemove(@Question, string("Question                                                        "), 64)
-          bytemove(@Answer,   string("What is the question?                                           "), 64)
-        
-      12: questVal := 200
-          bytemove(@Question, string("Question                                                        "), 64)
-          bytemove(@Answer,   string("What is the question?                                           "), 64)
-        
-      13: questVal := 300
-          bytemove(@Question, string("Question                                                        "), 64)
-          bytemove(@Answer,   string("What is the question?                                           "), 64)
-        
-      14: questVal := 400
-          bytemove(@Question, string("Question                                                        "), 64)
-          bytemove(@Answer,   string("What is the question?                                           "), 64)
-        
-      15: questVal := 500
-          bytemove(@Question, string("Question                                                        "), 64)
-          bytemove(@Answer,   string("What is the question?                                           "), 64)
-        
-        
-      16:'Cat 4 $100
-          questVal := 100
-          bytemove(@Question, string("Question                                                        "), 64)
-          bytemove(@Answer,   string("What is the question?                                           "), 64)
-        
-      17: questVal := 200
-          bytemove(@Question, string("Question                                                        "), 64)
-          bytemove(@Answer,   string("What is the question?                                           "), 64)
-        
-      18: questVal := 300
-          bytemove(@Question, string("Question                                                        "), 64)
-          bytemove(@Answer,   string("What is the question?                                           "), 64)
-        
-      19: questVal := 400
-          bytemove(@Question, string("Question                                                        "), 64)
-          bytemove(@Answer,   string("What is the question?                                           "), 64)
-        
-      20: questVal := 500
-          bytemove(@Question, string("Question                                                        "), 64)
-          bytemove(@Answer,   string("What is the question?                                           "), 64)
-        
-      21:'Cat 5 $100
-          questVal := 100
-          bytemove(@Question, string("Question                                                        "), 64)
-          bytemove(@Answer,   string("What is the question?                                           "), 64)
-        
-      22: questVal := 200
-          bytemove(@Question, string("Question                                                        "), 64)
-          bytemove(@Answer,   string("What is the question?                                           "), 64)
-        
-      23: questVal := 300
-          bytemove(@Question, string("Question                                                        "), 64)
-          bytemove(@Answer,   string("What is the question?                                           "), 64)
-        
-      24: questVal := 400
-          bytemove(@Question, string("Question                                                        "), 64)
-          bytemove(@Answer,   string("What is the question?                                           "), 64)
-        
-      25: questVal := 500
-          bytemove(@Question, string("Question                                                        "), 64)
-          bytemove(@Answer,   string("What is the question?                                           "), 64)
-
-      26: 'Cat 6 $100
-          questVal := 100
-          bytemove(@Question, string("Question                                                        "), 64)
-          bytemove(@Answer,   string("What is the question?                                           "), 64)
-        
-      27: questVal := 200
-          bytemove(@Question, string("Question                                                        "), 64)
-          bytemove(@Answer,   string("What is the question?                                           "), 64)
-        
-      28: questVal := 300
-          bytemove(@Question, string("Question                                                        "), 64)
-          bytemove(@Answer,   string("What is the question?                                           "), 64)
-        
-      29: questVal := 400
-          bytemove(@Question, string("Cat 6 $400 question                                             "), 64)
-          bytemove(@Answer,   string("What is the question?                                           "), 64)
-        
-      30: questVal := 500
-          bytemove(@Question, string("Cat 6 $500 question                                             "), 64)
-          bytemove(@Answer,   string("What is the question?                                           "), 64)
-        
-       
     'Use 0 to indicate question has already been asked
     GUI.MENUSetStatus(QuestMenu[val], 0)
     'Set text (the price) to blank
@@ -477,26 +451,13 @@ PRI HandleQuestionFunction( val ) | tmp
     pst.Str(string("answer is: ",13))
     pst.Str(@Answer)
 
-    'BlankScreen
-    'Trying out question box
-    'We blanked the screen, now we need to restore normal colors
-    'Now make just the lines we need look right
-    'repeat tmp from vga_rows/2 to vga_rows/2 + 2
-    '  GUI.SetLineColor(tmp, %%333, %%003)
-
     'Then restore normal colors across screen
 
     GUI.TBOXClear(AnswerBox)
-    GUI.TBOXPrint(AnswerBox, @Question, 64)
+    GUI.TBOXPrint(AnswerBox, @Question, 140)
 
     EnableBuzzer
   return val
-
-
-PRI BlankScreen | tmp
-  'make whole screen blue
-  repeat tmp from 0 to vga_rows
-    GUI.SetLineColor(tmp, %%003, %%003)
 
 DAT
 
