@@ -1,4 +1,8 @@
 CON
+'Note a serious issue whereby flashing the exact same file in Windows causes this to run in 1024x768,
+'but flashing from Linux yields 800x600. Possible a line ending issue interfering with comments in
+'vga_hires_text?
+
 
   _clkmode = xtal1 + pll16x
   _xinfreq = 5_000_000
@@ -69,7 +73,6 @@ VAR
   long team2Score
   long team3Score
   
-  'byte tmr1
 
 PUB start | gx, idx, str, i
 
@@ -193,7 +196,6 @@ PUB start | gx, idx, str, i
     '----------------------------------------------------------------------
 
 
-CON   ''=====< START OF UI HELPER FUNCTIONS >==================================
 PRI CreateUI | tmp
 'You create this function to create your GUI.
 '
@@ -241,12 +243,12 @@ PRI initRectangles | c, r
   Cat5TBOX := GUI.TBOXInit( 0,64,16,6,1,0)
   Cat6TBOX := GUI.TBOXInit( 0,80,16,6,1,0)
 
-  GUI.TBOXPrint( Cat1TBOX, string("Freedom Isn't Free"), 0 )
-  GUI.TBOXPrint( Cat2TBOX, string("History"), 0 )
-  GUI.TBOXPrint( Cat3TBOX, string("Port Math"), 0 )
-  GUI.TBOXPrint( Cat4TBOX, string("Fucking it Up"), 0 )
-  GUI.TBOXPrint( Cat5TBOX, string("History"), 0 )
-  GUI.TBOXPrint( Cat6TBOX, string("History"), 0 )
+  GUI.TBOXPrint( Cat1TBOX, string("DefCon History"), 0 )
+  GUI.TBOXPrint( Cat2TBOX, string("Zombie Apocalypse"), 0 )
+  GUI.TBOXPrint( Cat3TBOX, string("No Need to Know"), 0 )
+  GUI.TBOXPrint( Cat4TBOX, string("FuckedUp Math"), 0 )
+  GUI.TBOXPrint( Cat5TBOX, string("IP"), 0 )
+  GUI.TBOXPrint( Cat6TBOX, string("Crypto Zoology"), 0 )
   
 
   AnswerBox := GUI.TBOXInit( 24, 15, 66, 6, 1,0)      'Needs to be two wider than max answer length
@@ -328,7 +330,7 @@ PRI HandleQuestionFunction( val ) | tmp
           bytemove(@Answer,   string("What is criminal justice?                                       "),64)
       2: 'Cat 1 $200 question
           questVal := 200
-          bytemove(@Question, string("At the Riv in 2009, someone boldly placed this outside the hotel's security office to steal banking credentials from unsuspecting users     "),140)
+          bytemove(@Question, string("At the Riv in 2009, someone boldly placed this outside the hotel   security office to steal banking credentials from unsuspecting users     "),140)
           bytemove(@Answer,   string("What is a rogue ATM?                                            "),64)
       3: 'Cat 1 $300 question
           questVal := 300
@@ -336,7 +338,7 @@ PRI HandleQuestionFunction( val ) | tmp
           bytemove(@Answer,   string("Who is Arizona Assistant Attorney General Gail Thackeray?       "),64)
       4: 'Cat 1 $400 question
           questVal := 400
-          bytemove(@Question, string("Marc Weber Tobias and his band of lock crackers easily debunked this high security lock maker's claims at DC XVI                            "),140)
+          bytemove(@Question, string("Marc Weber Tobias and his band of lock crackers easily debunked this high security lock maker   claims at DC XVI                            "),140)
           bytemove(@Answer,   string("What is Medeco?                                                 "),64)
       5: 'Cat 1 $500 question
           questVal := 500
@@ -344,7 +346,7 @@ PRI HandleQuestionFunction( val ) | tmp
           bytemove(@Answer,   string("Who is Michelle Madigan?                                        "),64)
       6: 'Cat 2 $100 question
           questVal := 100
-          bytemove(@Question, string("This cyber near-disaster cost $825 billion to prevent – so they say                                                                       "),140)
+          bytemove(@Question, string("This cyber near-disaster cost $825 billion to prevent – so they say                                                                         "),140)
           bytemove(@Answer,   string("What is Y2K?                                                    "),64)
       7: 'Cat 2 $200 question
           questVal := 200
@@ -372,7 +374,7 @@ PRI HandleQuestionFunction( val ) | tmp
           bytemove(@Answer,   string("What is the Commodore 64?                                       "),64)
       13: 'Cat 3 $300 question
           questVal := 300
-          bytemove(@Question, string("This computer company went bankrupt because it announced the “Executive” model before it was ready, and the “Model I” stopped selling"),140)
+          bytemove(@Question, string("This computer company went bankrupt because it announced the  Executive  model before it was ready, and the “Model I” stopped selling"),140)
           bytemove(@Answer,   string("What is Osborne?                                                "),64)
       14: 'Cat 3 $400 question
           questVal := 400

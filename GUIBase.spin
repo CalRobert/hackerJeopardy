@@ -111,7 +111,7 @@ PUB Init( vgaBasePin, MouseDatPin, MouseClkPin, KeyboardDatPin, KeyboardClkPin )
 
   cx1 := 0                              'text cursor starting position
   cy1 := 3                              '  (but hidden at start)
- 
+  
   SVGA.start(vgaBasePin,@scrn,@colors,@cx0,@sync) 'start VGA HI RES TEXT driver
 
   MOUS.start(MouseDatPin, MouseClkPin)  'start mouse and set bound parameters
